@@ -102,9 +102,68 @@
 </div>
 
 <script>
-    // selecting all the queries in the html page.
-    const messages_list = document.querySelector('.messages-list')
-    const message_form = document.querySelector('.message-form')
-    const message_input = document.querySelector('.message-input')
+    // Selecting all the required elements from the HTML page.
+    const messages_list = document.querySelector('.messages-list');
+    // Selecting the container for messages.
+    const message_form = document.querySelector('.message-form');
+    // Selecting the message form.
+    const message_input = document.querySelector('.message-input');
+    // Selecting the input field for messages.
+
+    // Adding an event listener for when the form is submitted.
+    message_form.addEventListener('submit', (event) => {
+        event.preventDefault(); // Prevent the default form submission behavior.
+        const message = message_input.value.trim();
+        // Get the message content and remove leading/trailing spaces.
+        if (message.length == 0) {
+            return; // If the message is empty, do nothing.
+        }
+
+        // Create a new list item element to display the sent message.
+        const message_item = document.createElement('li');
+        message_item.classList.add('message', 'sent'); // Add CSS classes for styling.
+        message_item.innerHTML = `
+        <div class="message-text">
+            <div class="message-sender">
+                <b>You</b>
+            </div>
+            <div class="message-content">
+                ${message}   // Display the actual message content.
+            </div>
+        </div>`;
+        messages_list.appendChild(message_item); // Add the message to the messages list.
+        message_input.value = ''; // Clear the message input field.
+
+        // Send a POST request to a server with the message data.
+        fetch('', {
+            method: 'POST',
+            headers: { 'Content-type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                'csrfmiddlewaretoken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'message': message
+            })
+        })
+            .then(response => response.json()) // Parse the response as JSON.
+            .then(data => {
+                const response = data.response;
+                // Extract the response message from the JSON data.
+
+                // Create a new list item element to display the received message.
+                const message_item = document.createElement('li');
+                message_item.classList.add('message', 'received'); // Add CSS classes for styling.
+                message_item.innerHTML = `
+        <div class="message-text">
+            <div class="message-sender">
+                <b>Chat Bot</b>
+            </div>
+            <div class="message-content">
+                ${response}   // Display the received response message.
+            </div>
+        </div>`;
+                messages_list.appendChild(message_item);
+                // Add the message to the messages list.
+            });
+    });
+
 </script>
 {% endblock %}
